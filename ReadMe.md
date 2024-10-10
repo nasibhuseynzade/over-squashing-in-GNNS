@@ -6,11 +6,11 @@ This project focuses on mitigating the issue of over-squashing in Graph Neural N
 
 ## Methods
 
-### FoSR (Feature of Structural Relevance)
-FoSR aims to enhance the representation of node features by considering their structural relevance within the graph. This method focuses on improving information retention during the message-passing phase of GNNs.
+### FoSR (First order Spectral Rewiring)
+FoSR aims to ...
 
-### SDRF (Spectral Decomposition with Residual Filtering)
-SDRF employs spectral decomposition techniques to filter out noise and enhance the flow of relevant information. This method leverages the graph's spectral properties to minimize the impact of over-squashing.
+### SDRF (Stochastic Discrete Ricci Flow)
+SDRF aims to ...
 
 ## Measurement Metrics
 
