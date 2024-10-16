@@ -1,3 +1,11 @@
+import numpy as np
+from torch_geometric.utils import to_networkx, to_scipy_sparse_matrix
+import networkx as nx
+import numpy as np
+from scipy.linalg import pinv
+from math import inf
+from numba import jit, int64
+
 
 def choose_edge_to_add(x, edge_index, degrees):
     # chooses edge (u, v) to add which minimizes y[u]*y[v]
