@@ -1,5 +1,5 @@
-import numpy as np
 from preprocessing.fosr import edge_rewire
+import numpy as np
 
 def apply_fosr(edge_index, rewire_fraction=0.05, min_iterations=10, max_iterations=1000):
     edge_type = np.zeros(edge_index.shape[1], dtype=np.int64)

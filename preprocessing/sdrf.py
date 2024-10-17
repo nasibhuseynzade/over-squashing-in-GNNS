@@ -1,10 +1,3 @@
-from numba import jit, prange
-import numpy as np
-import torch
-from torch_geometric.utils import (
-    to_networkx,
-    from_networkx,
-)
 
 def softmax(a, tau=1):
     exp_a = np.exp(a * tau)

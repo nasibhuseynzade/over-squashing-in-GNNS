@@ -1,12 +1,6 @@
-from metrics.commute_time import aggregate_commute_times
-from torch_geometric.datasets import ZINC, QM9
-from torch_geometric.utils import to_networkx
-from methods._fosr import apply_fosr
-import numpy as np
-
 import networkx as nx
-from math import inf
-from numba import jit, int64
+import numpy as np
+from scipy.linalg import pinv
 
 def compute_commute_time(graph):
     """
