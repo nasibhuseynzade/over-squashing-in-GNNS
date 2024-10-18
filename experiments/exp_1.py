@@ -1,5 +1,5 @@
 # First experiment
-# Calculating commute time changes of original dataset and modified dataset
+# Calculating commute time changes of original dataset and FoSR modified dataset
 
 
 from metrics.commute_time import aggregate_commute_times
@@ -22,6 +22,8 @@ def process_dataset(dataset_name):
     
     total_original_edges = 0
     total_fosr_edges = 0
+    total_original_commute_time = 0
+    total_fosr_commute_time = 0
     total_graphs = len(dataset)
     
     for i, data in enumerate(dataset):
@@ -31,8 +33,11 @@ def process_dataset(dataset_name):
         # Get edge index from the graph
         edge_index = np.array(list(G_original.edges())).T
         
+        # Calculate max new edges (10% of original edges)
+        max_new_edges = int(0.1 * G_original.number_of_edges())
+        
         # Apply FOSR to get new edge index
-        new_edge_index, _ = apply_fosr(edge_index)
+        new_edge_index, _ = apply_fosr(edge_index, max_new_edges)
         
         # Create a new graph with the rewired edges
         G_fosr = nx.Graph()
@@ -40,30 +45,40 @@ def process_dataset(dataset_name):
         new_edges = list(zip(new_edge_index[0], new_edge_index[1]))
         G_fosr.add_edges_from(new_edges)
         
+        # Calculate commute times
+        original_commute_time = aggregate_commute_times(G_original)
+        fosr_commute_time = aggregate_commute_times(G_fosr)
+        
         total_original_edges += G_original.number_of_edges()
         total_fosr_edges += G_fosr.number_of_edges()
+        total_original_commute_time += original_commute_time
+        total_fosr_commute_time += fosr_commute_time
         
         if (i + 1) % 1000 == 0:
             print(f"Processed {i+1}/{total_graphs} graphs...")
     
-    return total_original_edges, total_fosr_edges, total_graphs
+    return total_original_edges, total_fosr_edges, total_original_commute_time, total_fosr_commute_time, total_graphs
 
 # Function to print summary statistics
-def print_summary(original_edges, fosr_edges, total_graphs, dataset_name):
+def print_summary(original_edges, fosr_edges, original_commute_time, fosr_commute_time, total_graphs, dataset_name):
     print(f"\nSummary for {dataset_name} dataset:")
     print(f"Total graphs processed: {total_graphs}")
     print(f"Number of original edges: {original_edges}")
     print(f"Number of edges in FOSR dataset: {fosr_edges}")
     print(f"Difference in edges: {fosr_edges - original_edges}")
+    print(f"Percentage of edges added: {((fosr_edges - original_edges) / original_edges) * 100:.2f}%")
+    print(f"Average original commute time: {original_commute_time / total_graphs:.4f}")
+    print(f"Average FOSR commute time: {fosr_commute_time / total_graphs:.4f}")
+    print(f"Percentage change in commute time: {((fosr_commute_time - original_commute_time) / original_commute_time) * 100:.2f}%")
 
 # Process ZINC dataset
 print("Processing ZINC dataset...")
-zinc_original, zinc_fosr, zinc_graphs = process_dataset('ZINC')
+zinc_original, zinc_fosr, zinc_original_ct, zinc_fosr_ct, zinc_graphs = process_dataset('ZINC')
 
 # Process QM9 dataset
 print("\nProcessing QM9 dataset...")
-qm9_original, qm9_fosr, qm9_graphs = process_dataset('QM9')
+qm9_original, qm9_fosr, qm9_original_ct, qm9_fosr_ct, qm9_graphs = process_dataset('QM9')
 
 # Print summaries
-print_summary(zinc_original, zinc_fosr, zinc_graphs, "ZINC")
-print_summary(qm9_original, qm9_fosr, qm9_graphs, "QM9")
+print_summary(zinc_original, zinc_fosr, zinc_original_ct, zinc_fosr_ct, zinc_graphs, "ZINC")
+print_summary(qm9_original, qm9_fosr, qm9_original_ct, qm9_fosr_ct, qm9_graphs, "QM9")
