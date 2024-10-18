@@ -11,6 +11,7 @@ import numpy as np
 import networkx as nx
 from math import inf
 from numba import jit, int64
+import os
 
 def process_dataset(dataset_name):
     if dataset_name.lower() == 'zinc':
@@ -54,31 +55,45 @@ def process_dataset(dataset_name):
         total_original_commute_time += original_commute_time
         total_fosr_commute_time += fosr_commute_time
         
-        if (i + 1) % 1000 == 0:
+        if (i + 1) % 10000 == 0:
             print(f"Processed {i+1}/{total_graphs} graphs...")
     
     return total_original_edges, total_fosr_edges, total_original_commute_time, total_fosr_commute_time, total_graphs
 
 # Function to print summary statistics
-def print_summary(original_edges, fosr_edges, original_commute_time, fosr_commute_time, total_graphs, dataset_name):
-    print(f"\nSummary for {dataset_name} dataset:")
-    print(f"Total graphs processed: {total_graphs}")
-    print(f"Number of original edges: {original_edges}")
-    print(f"Number of edges in FOSR dataset: {fosr_edges}")
-    print(f"Difference in edges: {fosr_edges - original_edges}")
-    print(f"Percentage of edges added: {((fosr_edges - original_edges) / original_edges) * 100:.2f}%")
-    print(f"Average original commute time: {original_commute_time / total_graphs:.4f}")
-    print(f"Average FOSR commute time: {fosr_commute_time / total_graphs:.4f}")
-    print(f"Percentage change in commute time: {((fosr_commute_time - original_commute_time) / original_commute_time) * 100:.2f}%")
+def print_summary_to_file(file, original_edges, fosr_edges, original_commute_time, fosr_commute_time, total_graphs, dataset_name):
+    summary = (
+        f"\nSummary for {dataset_name} dataset:\n"
+        f"Total graphs processed: {total_graphs}\n"
+        f"Number of original edges: {original_edges}\n"
+        f"Number of edges in FOSR dataset: {fosr_edges}\n"
+        f"Difference in edges: {fosr_edges - original_edges}\n"
+        f"Percentage of edges added: {((fosr_edges - original_edges) / original_edges) * 100:.2f}%\n"
+        f"Average original commute time: {original_commute_time / total_graphs:.4f}\n"
+        f"Average FOSR commute time: {fosr_commute_time / total_graphs:.4f}\n"
+        f"Percentage change in commute time: {((fosr_commute_time - original_commute_time) / original_commute_time) * 100:.2f}%\n"
+    )
 
-# Process ZINC dataset
-print("Processing ZINC dataset...")
-zinc_original, zinc_fosr, zinc_original_ct, zinc_fosr_ct, zinc_graphs = process_dataset('ZINC')
+    # Print to console
+    print(summary)
 
-# Process QM9 dataset
-print("\nProcessing QM9 dataset...")
-qm9_original, qm9_fosr, qm9_original_ct, qm9_fosr_ct, qm9_graphs = process_dataset('QM9')
+    # Write the summary to the file
+    file.write(summary)
 
-# Print summaries
-print_summary(zinc_original, zinc_fosr, zinc_original_ct, zinc_fosr_ct, zinc_graphs, "ZINC")
-print_summary(qm9_original, qm9_fosr, qm9_original_ct, qm9_fosr_ct, qm9_graphs, "QM9")
+# Create the results folder if it doesn't exist
+os.makedirs("results", exist_ok=True)
+
+# Open the results file in write mode
+with open("results/exp1_results.txt", "w") as f:
+
+    # Process ZINC dataset
+    print("Processing ZINC dataset...")
+    zinc_original, zinc_fosr, zinc_original_ct, zinc_fosr_ct, zinc_graphs = process_dataset('ZINC')
+
+    # Process QM9 dataset
+    print("\nProcessing QM9 dataset...")
+    qm9_original, qm9_fosr, qm9_original_ct, qm9_fosr_ct, qm9_graphs = process_dataset('QM9')
+
+    # Print summaries to console and file
+    print_summary_to_file(f, zinc_original, zinc_fosr, zinc_original_ct, zinc_fosr_ct, zinc_graphs, "ZINC")
+    print_summary_to_file(f, qm9_original, qm9_fosr, qm9_original_ct, qm9_fosr_ct, qm9_graphs, "QM9")
